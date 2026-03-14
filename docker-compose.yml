@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL + MySQL GUI (Adminer) ───────────────────────────────
+  adminer:
+    image: docker.io/adminer:latest
+    # network_mode: host
+    environment:
+      ADMINER_DEFAULT_SERVER: host.docker.internal
+      ADMINER_DESIGN: pepa-linha-dark
+    # command: >
+      # php -S 0.0.0.0:8080 -t /var/www/html
+    ports:
+      - "8081:8080"
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+    
+  # ── Redis GUI ───────────────────────────────────────────────────
+  redisinsight:
+    image: docker.io/redis/redisinsight:latest
+    ports:
+      - "8082:5540"
+    volumes:
+      - redisinsight_data:/data
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+
+  # ── Kafka GUI ───────────────────────────────────────────────────
+  kafka-ui:
+    image: docker.io/provectuslabs/kafka-ui:latest
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+    ports:
+      - "8083:8080"
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+
+  # ── MinIO / S3 GUI (Filestash) ─────────────────────────────────
+  filestash:
+    image: docker.io/machines/filestash:latest
+    ports:
+      - "8085:8334"
+    volumes:
+      - filestash_data:/app/data/state
+    restart: unless-stopped
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+
+volumes:
+  redisinsight_data:
+  filestash_data:
